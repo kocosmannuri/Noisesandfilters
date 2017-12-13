@@ -20,9 +20,10 @@ x = []
 x = list(range(len(x_train)))
 X_train = []
 X_train = list(range(len(x_train)))
-parnoise = "gauss" 
 
-def noisy(noise_type,image,std=0.9,p=0.1,q=0.1):
+parnoise = "quantization" 
+
+def noisy(noise_type,image,std=0.9,p=0.9,q=0.4):
 
     if noise_type == "gauss":
         a = noise.GaussianNoise(std,scale = [0,255])
@@ -38,8 +39,13 @@ def noisy(noise_type,image,std=0.9,p=0.1,q=0.1):
         return noisy
 
 def psnr(imageA, imageB):
-    err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
-    err /= float(imageA.shape[0] * imageA.shape[1])
+    errR = np.sum((imageA[:,:,0].astype("float") - imageB[:,:,0].astype("float")) ** 2)
+    errR /= float(imageA.shape[0] * imageA.shape[1])
+    errG = np.sum((imageA[:,:,1].astype("float") - imageB[:,:,1].astype("float")) ** 2)
+    errG /= float(imageA.shape[0] * imageA.shape[1])
+    errB = np.sum((imageA[:,:,2].astype("float") - imageB[:,:,2].astype("float")) ** 2)
+    errB /= float(imageA.shape[0] * imageA.shape[1])
+    err = (errR + errG +errB)/3
     if err == 0:
         return 20
     PIXEL_MAX = 255.0
@@ -52,4 +58,4 @@ for i in range(len(x_train)):
       x[i] = psnr(X_train[i],x_train[i])
       avg = float(sum(x))/len(x)
 
-print(avg)     
+print(avg)  
