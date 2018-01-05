@@ -1,7 +1,5 @@
 import noise
 import numpy as np
-import noise
-import numpy as np
 import math
 import cv2
 import logging
@@ -25,6 +23,7 @@ X_train = []
 X_train = list(range(len(x_train)))
 
 parnoise = "gauss" 
+parfilter = "median"
 
 def noisy(noise_type,image,std=0.3,p=0.1,q=0.0):
 
@@ -65,12 +64,22 @@ def lowres(image):
             low_res_image = cv2.resize(low_res_image, size)           
     return low_res_image
 
-
+def filters(filter_type, img):
+    img = img.astype('uint8')
+    if filter_type == "median":
+        median = cv2.medianBlur(img,5)
+        return median
+    elif filter_type == "bilateral":
+        bilateral= cv2.bilateralFilter(img,9,255,255)
+        return bilateral
+    
 for i in range(len(x_train)):
       X_train[i] = noisy(parnoise, x_train[i])
-      X_train[i] = lowres(X_train[i])
+      X_train[i]  = filters("bilateral", X_train[i])
+      #X_train[i] = lowres(X_train[i])
       x[i] = psnr(X_train[i],x_train[i])
       avg = float(sum(x))/len(x)
+      
 
-print(avg)      
+print(avg)           
 
